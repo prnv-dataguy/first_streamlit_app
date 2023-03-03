@@ -23,6 +23,13 @@ fruits_to_show = my_fruit_list.loc[fruits_selected]
 #display the table on page
 streamlit.dataframe(fruits_to_show)
 
+#create the repeatable code block (called a function)
+def get_fruityvice_data(this_fruit_choice):
+    fruityvice_reponse = requests.get("https://fruityvice.com/api/fruit/" + fruit_choice)
+    #normalizing the json response
+    fruityvice_normalized = pandas.json_normalize(fruityvice_reponse.json())
+    return fruityvice_normalized
+
 #New Section to display fuityvice api response
 streamlit.header("Fruityvice fruit Advice!")
 try:
@@ -31,12 +38,11 @@ try:
     streamlit.error("Please select a fruit to get information")
   else:
     #new section to display fruityvice api response
-    fruityvice_reponse = requests.get("https://fruityvice.com/api/fruit/" + fruit_choice)
-    #normalizing the json response
-    fruityvice_normalized = pandas.json_normalize(fruityvice_reponse.json())
-    streamlit.dataframe(fruityvice_normalized)
+    back_from_function = get_fruityvice_data(fruit_choice)
+    streamlit.dataframe(back_from_function)
 except URLError as e:
   streamlit.error()
+  
 streamlit.stop()
 
 my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
